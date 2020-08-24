@@ -66,7 +66,7 @@ def get_token_from_auth_header():
             "description": "Authorization header must have the format 'Bearer token'"
         }, 401)
 
-    token = parts[2]
+    token = parts[1]
     return token
 
 
@@ -190,16 +190,9 @@ def requires_auth(permission=""):
     def requires_auth_decorator(f):
         @wraps(f)
         def wrapper(*args, **kwargs):
-            try:
-                token = get_token_from_auth_header()
-                payload = verify_and_decode_jwt(token)
-            except:
-                abort(401)
-
-            try:
-                check_permissions(permission, payload)
-            except:
-                abort(403)
+            token = get_token_from_auth_header()
+            payload = verify_and_decode_jwt(token)
+            check_permissions(permission, payload)
 
             return f(payload, *args, **kwargs)
         return wrapper
